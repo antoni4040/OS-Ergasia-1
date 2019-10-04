@@ -29,36 +29,67 @@ void freeBloomFilter(BF* bloomFilter)
 }
 
 /*
+Create a hash triplet to be used for inserting
+and searching in the bloom filter.
+*/
+size_t** createHashTriplet(size_t bloomFilterSize, char* key, int keyLength)
+{
+    size_t** hashTriplet = malloc(3 * sizeof(size_t*));
+
+    hashTriplet[0] = malloc(sizeof(size_t));
+    hashTriplet[1] = malloc(sizeof(size_t));
+    hashTriplet[2] = malloc(sizeof(size_t));
+
+    MurmurHash3_x86_32(key, keyLength, 314, hashTriplet[0]);
+    MurmurHash3_x86_32(key, keyLength, 159, hashTriplet[1]);
+    MurmurHash3_x86_32(key, keyLength, 265, hashTriplet[2]);
+
+    *hashTriplet[0] %= bloomFilterSize * 32;
+    *hashTriplet[1] %= bloomFilterSize * 32;
+    *hashTriplet[2] %= bloomFilterSize * 32;
+
+    return hashTriplet;
+}
+
+/*
 Hash the given key with 3 different hash functions and
 set the resulting bit positions to 1.
 */
 void insertToBloomFilter(BF* bloomFilter, char* key, int keyLength)
 {
-    size_t* hash1 = malloc(sizeof(size_t));
-    size_t* hash2 = malloc(sizeof(size_t));
-    size_t* hash3 = malloc(sizeof(size_t));
+    size_t** hashTriplet = createHashTriplet(bloomFilter->size, key, keyLength);
 
-    // TODO: change last hash to be the result of the first two.
-    MurmurHash3_x86_32(key, keyLength, 314, hash1);
-    MurmurHash3_x86_32(key, keyLength, 159, hash2);
-    MurmurHash3_x86_32(key, keyLength, 265, hash3);
-
-    *hash1 %= bloomFilter->size * 32;
-    *hash2 %= bloomFilter->size * 32;
-    *hash3 %= bloomFilter->size * 32;
-
-    bloomFilter->bitArray[*hash1 / 32] |= 1 << *hash1 % 32;
-    bloomFilter->bitArray[*hash2 / 32] |= 1 << *hash2 % 32;
-    bloomFilter->bitArray[*hash3 / 32] |= 1 << *hash3 % 32;
+    for(int i = 0; i <=2; i++)
+    {
+        bloomFilter->bitArray[*hashTriplet[i] / 32] |= 1 << *hashTriplet[i] % 32;
+    }
 }
 
-void printBits(uint32_t num)
+/*
+Search bloom filter. Return 0 if something certainly doesn't exist,
+return 1 if something may or may not exist.
+*/
+int searchBloomFilter(BF* bloomFilter, char* key, int keyLength)
 {
-for(int bit=0;bit<32; bit++)
-{
-    printf("%i ", num & 0x01);
-    num = num >> 1;
+    size_t** hashTriplet = createHashTriplet(bloomFilter->size, key, keyLength);
+
+    for(int i = 0; i <= 2; i++)
+    {
+        if(!(bloomFilter->bitArray[*hashTriplet[i] / 32] & 1 << *hashTriplet[i] % 32))
+        return 0;
+    }
+    
+    return 1;
 }
+
+//TODO: helper function, remove before the end.
+void printUINT32Bits(uint32_t num)
+{
+    for(int bitPos=0; bitPos<32; bitPos++)
+    {
+        printf("%i ", num & 0x01);
+        num = num >> 1;
+    }
 }
 
 int main() {
@@ -66,8 +97,15 @@ int main() {
     printf("%i\n", newBF->bitArray[0]);
     insertToBloomFilter(newBF, "hello", 5);
     insertToBloomFilter(newBF, "england", 7);
+
+    int b = searchBloomFilter(newBF, "hello", 5);
+    printf("%i\n", b);
+    b = searchBloomFilter(newBF, "aaa", 3);
+    printf("%i\n", b);
+    b = searchBloomFilter(newBF, "england", 7);
+    printf("%i\n", b);
     for(int i = 0; i < newBF->size; i++){
-        printBits(newBF->bitArray[i]);
+        printUINT32Bits(newBF->bitArray[i]);
         printf("\n");
     }
     freeBloomFilter(newBF);

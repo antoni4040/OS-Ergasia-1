@@ -18,3 +18,8 @@ struct BF {
 } typedef BF;
 
 
+BF*         initializeBloomFilter(size_t size);
+void        freeBloomFilter(BF* bloomFilter);
+size_t**    createHashTriplet(size_t bloomFilterSize, char* key, int keyLength);
+void        insertToBloomFilter(BF* bloomFilter, char* key, int keyLength);
+int         searchBloomFilter(BF* bloomFilter, char* key, int keyLength);
