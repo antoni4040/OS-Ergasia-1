@@ -12,6 +12,7 @@
                 "${fileDirname}/../include",
                 "-g",
                 "${fileDirname}/../src/BF.c",
+                "${fileDirname}/../src/RBT.c",
                 "${fileDirname}/../src/murmur3.c",
                 "-o",
                 "${fileDirname}/../bf.out"

@@ -10,8 +10,7 @@ K22: Operating Systems.
 Initialize a bloom filter with a given size.
 It's basically an array of uint32s all set to 0.
 */
-BF* initializeBloomFilter(size_t size) 
-{
+BF* initializeBloomFilter(size_t size) {
     BF* bloomFilter = malloc(sizeof(BF));
     bloomFilter->size = size;
     bloomFilter->bitArray = calloc(size, 32);
@@ -22,8 +21,7 @@ BF* initializeBloomFilter(size_t size)
 Free the given bloom filter's array of bits and
 then the struct itself.
 */
-void freeBloomFilter(BF* bloomFilter)
-{
+void freeBloomFilter(BF* bloomFilter) {
     free(bloomFilter->bitArray);
     free(bloomFilter);
 }
@@ -32,8 +30,7 @@ void freeBloomFilter(BF* bloomFilter)
 Create a hash triplet to be used for inserting
 and searching in the bloom filter.
 */
-size_t** createHashTriplet(size_t bloomFilterSize, char* key, int keyLength)
-{
+size_t** createHashTriplet(size_t bloomFilterSize, char* key, int keyLength) {
     size_t** hashTriplet = malloc(3 * sizeof(size_t*));
 
     hashTriplet[0] = malloc(sizeof(size_t));
@@ -55,8 +52,7 @@ size_t** createHashTriplet(size_t bloomFilterSize, char* key, int keyLength)
 Hash the given key with 3 different hash functions and
 set the resulting bit positions to 1.
 */
-void insertToBloomFilter(BF* bloomFilter, char* key, int keyLength)
-{
+void insertToBloomFilter(BF* bloomFilter, char* key, int keyLength) {
     size_t** hashTriplet = createHashTriplet(bloomFilter->size, key, keyLength);
 
     for(int i = 0; i <=2; i++)
@@ -69,8 +65,7 @@ void insertToBloomFilter(BF* bloomFilter, char* key, int keyLength)
 Search bloom filter. Return 0 if something certainly doesn't exist,
 return 1 if something may or may not exist.
 */
-int searchBloomFilter(BF* bloomFilter, char* key, int keyLength)
-{
+int searchBloomFilter(BF* bloomFilter, char* key, int keyLength) {
     size_t** hashTriplet = createHashTriplet(bloomFilter->size, key, keyLength);
 
     for(int i = 0; i <= 2; i++)
@@ -83,31 +78,10 @@ int searchBloomFilter(BF* bloomFilter, char* key, int keyLength)
 }
 
 //TODO: helper function, remove before the end.
-void printUINT32Bits(uint32_t num)
-{
+void printUINT32Bits(uint32_t num) {
     for(int bitPos=0; bitPos<32; bitPos++)
     {
         printf("%i ", num & 0x01);
         num = num >> 1;
     }
-}
-
-int main() {
-    BF* newBF = initializeBloomFilter(10);
-    printf("%i\n", newBF->bitArray[0]);
-    insertToBloomFilter(newBF, "hello", 5);
-    insertToBloomFilter(newBF, "england", 7);
-
-    int b = searchBloomFilter(newBF, "hello", 5);
-    printf("%i\n", b);
-    b = searchBloomFilter(newBF, "aaa", 3);
-    printf("%i\n", b);
-    b = searchBloomFilter(newBF, "england", 7);
-    printf("%i\n", b);
-    for(int i = 0; i < newBF->size; i++){
-        printUINT32Bits(newBF->bitArray[i]);
-        printf("\n");
-    }
-    freeBloomFilter(newBF);
-    return 0;
 }
