@@ -5,13 +5,12 @@ This is an implementation of a generic red-black tree for the
 
 #include <stdlib.h>
 
-typedef enum {
-    RED, BLACK
-} color;
+#define RED 1
+#define BLACK 0
 
 struct node {
     void* element;
-    color color;
+    unsigned int color: 1;
     struct node* parent;
     struct node* leftChild;
     struct node* rightChild;
