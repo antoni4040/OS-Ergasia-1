@@ -71,6 +71,51 @@ node* getUncle(node* givenNode) {
 }
 
 /*
+Left rotate a node(fancy way of saying "excange places with its left child, but
+keep the tree rules"). Also, make sure that the tree root changes if necessary.
+*/
+void leftRotation(RBT* redBlackTree, node* givenNode) {
+    node* previousRight = givenNode->rightChild;
+
+    givenNode->rightChild = previousRight->rightChild;
+    if(givenNode->rightChild != NULL)
+        givenNode->rightChild->parent = givenNode;
+
+    if(redBlackTree->root == givenNode)
+        redBlackTree->root = previousRight;
+    else if(givenNode->parent->leftChild == givenNode)
+        givenNode->parent->leftChild = previousRight;
+    else
+        givenNode->parent->rightChild = previousRight;
+    
+    previousRight->leftChild = givenNode;
+    givenNode->parent = previousRight;
+}
+
+/*
+Right rotate a node(fancy way of saying "excange places with its right child, but
+keep the tree rules"). Also, make sure that the tree root changes if necessary.
+*/
+void rightRotation(RBT* redBlackTree, node* givenNode) {
+    node* previousLeft = givenNode->leftChild;
+
+    givenNode->leftChild = previousLeft->rightChild;
+    if(givenNode->leftChild != NULL)
+        givenNode->leftChild->parent = givenNode;
+
+    if(redBlackTree->root == givenNode)
+        redBlackTree->root = previousLeft;
+    else if(givenNode->parent->leftChild == givenNode)
+        givenNode->parent->leftChild = previousLeft;
+    else
+        givenNode->parent->rightChild = previousLeft;
+    
+    previousLeft->rightChild = givenNode;
+    givenNode->parent = previousLeft;
+}
+
+
+/*
 A simple binary search tree insertion function. It will cause
 violations in the red-black tree which we'll fix after the new
 node's insertion.
@@ -109,18 +154,12 @@ int simpleBSTInsert(RBT* redBlackTree, node* newNode) {
 }
 
 
-// void* printRBT(node* currentNode) {
-//     if(currentNode == NULL) printf("NULL\n");
-//     else printf("%i", *(int*)(currentNode->element));
-//     if(currentNode->leftChild != NULL) 
-// }
-
-
-int main() {
-    RBT* rbt = initializeRedBlackTree(&exampleCompare);
-    int* a = malloc(sizeof(int));
-    *a = 10;
-    node* nd = initializeNode((void*)a);
-    int b = simpleBSTInsert(rbt, nd);
-    return 0;
+void* printRBT(node* currentNode) {
+    if(currentNode == NULL) printf("NULL ");
+    else printf("%i", *(int*)(currentNode->element));
+    if(currentNode != NULL) {
+        printRBT(currentNode->leftChild);
+        printRBT(currentNode->rightChild);
+        printf("\n");
+    }
 }

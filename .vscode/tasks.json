@@ -14,8 +14,9 @@
                 "${fileDirname}/../src/BF.c",
                 "${fileDirname}/../src/RBT.c",
                 "${fileDirname}/../src/murmur3.c",
+                "${fileDirname}/../src/runelection.c",
                 "-o",
-                "${fileDirname}/../bf.out"
+                "${fileDirname}/../runelection"
             ],
             "options": {
                 "cwd": "/usr/bin"

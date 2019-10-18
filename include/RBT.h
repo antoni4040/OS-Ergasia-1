@@ -4,9 +4,15 @@ This is an implementation of a generic red-black tree for the
 */
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #define RED 1
 #define BLACK 0
+
+#define GET_GRANDPARENT(n) (n->parent != NULL ? (n->parent)->parent : NULL)
+#define GET_SIBLING(n) (n->parent == NULL ? NULL : ( \
+        (n->parent)->leftChild == n ? (n->parent)->rightChild : (n->parent)->leftChild))
+#define GET_UNCLE(n) (GET_GRANDPARENT(n) == NULL ? NULL : GET_SIBLING(n->parent))
 
 struct node {
     void* element;
