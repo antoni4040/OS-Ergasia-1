@@ -83,17 +83,17 @@ void insertToBloomFilter(BF* bloomFilter, char* key, int keyLength) {
 Search bloom filter. Return 0 if something certainly doesn't exist,
 return 1 if something may or may not exist.
 */
-int searchBloomFilter(BF* bloomFilter, char* key, int keyLength) {
+bool searchBloomFilter(BF* bloomFilter, char* key, int keyLength) {
     size_t** hashTriplet = createHashTriplet(bloomFilter->size, key, keyLength);
 
     for(int i = 0; i <= 2; i++)
     {
         if(!(bloomFilter->bitArray[*hashTriplet[i] / 32] & 1 << *hashTriplet[i] % 32))
-            return 0;
+            return false;
     }
 
     freeHashTriplet(hashTriplet);  
-    return 1;
+    return true;
 }
 
 /*

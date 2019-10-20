@@ -10,6 +10,7 @@ This is an implementation of a generic red-black tree.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define RED 1
 #define BLACK 0
@@ -34,6 +35,8 @@ will be used to compare two nodes for search and insertion.
 */
 struct RBT {
     int (*compare)(node* nodeA, node* keyB);
+    void (*freeNode)(node* nodeToDie);
+    void (*printNode)(node* nodeToPrint);
     node* root;
 } typedef RBT;
 
@@ -48,4 +51,5 @@ int         simpleBSTInsert(RBT* redBlackTree, node* newNode);
 void        swapColors(node* nodeA, node* nodeB);
 int         fixRBT(RBT* redBlackTree, node* newNode);
 int         RBTInsert(RBT* redBlackTree, node* newNode);
+node*       RBTSearch(RBT* redBlackTree, node* nodeForSearch);
 #endif //ERGASIA_1_RBT_H

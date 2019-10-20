@@ -33,5 +33,7 @@ struct voter {
 voter*      initializeVoter(char* IDstring, char* name, char* surname, 
             unsigned int age, gender givenGender, unsigned int postCode);
 int         alphanumericCompare(node* A, node* B);
+void        freeNode(node* nodeToDie);
+void        printNode(node* nodeToPrint);
 
 #endif //ERGASIA_1_VOTER_H

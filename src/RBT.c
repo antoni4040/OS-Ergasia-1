@@ -213,3 +213,34 @@ int RBTInsert(RBT* redBlackTree, node* newNode) {
     fixRBT(redBlackTree, newNode);
     return 0;
 }
+
+/*
+Go through the tree and search for a given node. This node
+was created only for the compare to work, so free it afterwards.
+*/
+node* RBTSearch(RBT* redBlackTree, node* nodeForSearch) {
+    if(redBlackTree->root == NULL) {
+        redBlackTree->freeNode(nodeForSearch);
+        return NULL;   //Tree is empty, nothing to find.
+    }
+
+    // Iteratively get to the bottom of the RBT, until we hit a null child.
+    node* parentNode = NULL;
+    node* currentNode = redBlackTree->root;
+    while(currentNode != NULL){
+        if(redBlackTree->compare(nodeForSearch, currentNode) < 0){
+            parentNode = currentNode;
+            currentNode = currentNode->leftChild;
+        }
+        else if(redBlackTree->compare(nodeForSearch, currentNode) > 0) {
+            parentNode = currentNode;
+            currentNode = currentNode->rightChild;
+        }
+        else {
+            redBlackTree->freeNode(nodeForSearch);
+            return currentNode; //Node found.
+        }
+    }
+    redBlackTree->freeNode(nodeForSearch);
+    return NULL; //Node not found.
+}

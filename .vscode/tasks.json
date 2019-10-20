@@ -17,6 +17,8 @@
                 "${fileDirname}/../src/voter.c",
                 "${fileDirname}/../src/files.c",
                 "${fileDirname}/../src/runelection.c",
+                "${fileDirname}/../src/prompt.c",
+                "${fileDirname}/../src/postcode.c",
                 "-o",
                 "${fileDirname}/../runelection",
                 "-lm"

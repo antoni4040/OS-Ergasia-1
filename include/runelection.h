@@ -10,3 +10,6 @@ Created by Antonis Karvelas, sdi1600060.
 #include "BF.h"
 #include "RBT.h"
 #include "voter.h"
+#include "prompt.h"
+#include "HT.h"
+

@@ -34,3 +34,23 @@ int alphanumericCompare(node* A, node* B) {
 
     return strcmp(elementA, elementB);
 }
+
+/*
+Free node function for the RBT.
+*/
+void freeNode(node* nodeToDie) {
+    voter* voterToDie = (voter*)(nodeToDie->element);
+    free(voterToDie->IDstring);
+    free(voterToDie->name);
+    free(voterToDie->surname);
+    free(voterToDie);
+    free(nodeToDie);
+}
+
+/*
+A function that prints the voter from an RBT node.
+*/
+void printNode(node* nodeToPrint) {
+    voter* v = (voter*)(nodeToPrint->element);
+    printf("%s %s %s %u %u\n", v->IDstring, v->name, v->surname, v->postCode, v->age);
+}

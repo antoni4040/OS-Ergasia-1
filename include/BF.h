@@ -29,7 +29,7 @@ void        freeBloomFilter(BF* bloomFilter);
 size_t**    createHashTriplet(size_t bloomFilterSize, char* key, int keyLength);
 void        freeHashTriplet(size_t** hashTriplet);
 void        insertToBloomFilter(BF* bloomFilter, char* key, int keyLength);
-int         searchBloomFilter(BF* bloomFilter, char* key, int keyLength);
+bool        searchBloomFilter(BF* bloomFilter, char* key, int keyLength);
 bool        simplePrimeCheck(size_t number);
 size_t      findFirstPrime(size_t size, int multiplier);
 

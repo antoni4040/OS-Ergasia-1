@@ -3,7 +3,7 @@
 int main(int argc, char **argv) {
     char* inputFile;
     char* outputFile;
-    unsigned int* numberOfUpdates;
+    unsigned int numberOfUpdates;
 
     // Abort if no command line arguments given:
     if(argc == 1)
@@ -27,8 +27,7 @@ int main(int argc, char **argv) {
         }
         else if(strcmp(argv[i], "-n") == 0) {
             i++;
-            numberOfUpdates = malloc(sizeof(unsigned int));
-            *numberOfUpdates = strtoul(argv[i], NULL, 10);
+            numberOfUpdates = strtoul(argv[i], NULL, 10);
         }
         else {
             printf("There was a problem with the command line parameters. Aborting now...\n");
@@ -36,9 +35,13 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf("input: %s, output: %s, numofupdates: %u\n", inputFile, outputFile, *numberOfUpdates);
+    printf("input: %s, output: %s, numofupdates: %u\n", inputFile, outputFile, numberOfUpdates);
 
-    getVotersFromFile(inputFile);
+    electionManager* manager = initializeElectionManager(numberOfUpdates);
 
-    printf("aaa\n");
+    getVotersFromFile(inputFile, manager);
+
+    commandPrompt(manager);
+
+    return 0;
 }

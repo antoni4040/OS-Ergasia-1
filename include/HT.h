@@ -22,9 +22,11 @@ is fast enough. 521 is a prime number.
 
 struct HT {
     RBT** cells;
-    size_t size;
+    int size;
+    int (*hash)(node* givenNode);
 } typedef HT;
 
 HT* initializeHashtable();
+int insertToHashTable(HT* hashtable, node* newItem);
 
 #endif //ERGASIA_1_HT_H
