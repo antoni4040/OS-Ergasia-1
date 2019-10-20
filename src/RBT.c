@@ -1,21 +1,10 @@
-/* Create by Antonis Karvelas, sdi1600060.
-This is an implementation of a generic red-black tree for the
-1st project of K22: Operating Systems.
+/* 
+Created by Antonis Karvelas, sdi1600060, for the 1st project of
+K22: Operating Systems.
+This is an implementation of a generic red-black tree.
 */
 
 #include "RBT.h"
-
-
-// TODO: remove before the end.
-int exampleCompare(node* A, node* B)
-{
-    int elementA = *(int*)(A->element);
-    int elementB = *(int*)(B->element);
-
-    if(elementA > elementB) return -1;
-    if(elementB < elementA) return 1;
-    return 0;
-}
 
 /*
 Given an element, encapsulate it in a node. Initial color is RED.
@@ -77,12 +66,15 @@ keep the tree rules"). Also, make sure that the tree root changes if necessary.
 void leftRotation(RBT* redBlackTree, node* givenNode) {
     node* previousRight = givenNode->rightChild;
 
-    givenNode->rightChild = previousRight->rightChild;
+    givenNode->rightChild = previousRight->leftChild;
     if(givenNode->rightChild != NULL)
         givenNode->rightChild->parent = givenNode;
 
-    if(redBlackTree->root == givenNode)
+    previousRight->parent = givenNode->parent;
+
+    if(previousRight->parent == NULL) {
         redBlackTree->root = previousRight;
+    }
     else if(givenNode->parent->leftChild == givenNode)
         givenNode->parent->leftChild = previousRight;
     else
@@ -103,7 +95,9 @@ void rightRotation(RBT* redBlackTree, node* givenNode) {
     if(givenNode->leftChild != NULL)
         givenNode->leftChild->parent = givenNode;
 
-    if(redBlackTree->root == givenNode)
+    previousLeft->parent = givenNode->parent;
+
+    if(previousLeft->parent == NULL)
         redBlackTree->root = previousLeft;
     else if(givenNode->parent->leftChild == givenNode)
         givenNode->parent->leftChild = previousLeft;
@@ -129,11 +123,11 @@ int simpleBSTInsert(RBT* redBlackTree, node* newNode) {
     node* parentNode = NULL;
     node* currentNode = redBlackTree->root;
     while(currentNode != NULL){
-        if(redBlackTree->compare(newNode, currentNode) == -1){
+        if(redBlackTree->compare(newNode, currentNode) < 0){
             parentNode = currentNode;
             currentNode = currentNode->leftChild;
         }
-        else if(redBlackTree->compare(newNode, currentNode) == 1) {
+        else if(redBlackTree->compare(newNode, currentNode) > 0) {
             parentNode = currentNode;
             currentNode = currentNode->rightChild;
         }
@@ -143,23 +137,79 @@ int simpleBSTInsert(RBT* redBlackTree, node* newNode) {
     }
 
     // Having kept the parent, make the new node either its left or right child.
-    if(redBlackTree->compare(newNode, parentNode) == -1){
+    if(redBlackTree->compare(newNode, parentNode) < 0){
         parentNode->leftChild = newNode;
+        newNode->parent = parentNode;
     }
     else {
         parentNode->rightChild = newNode;
+        newNode->parent = parentNode;
     }
 
     return 0;
 }
 
+/*
+Little helping function to swap node colors when fixing the RBT.
+*/
+void swapColors(node* nodeA, node* nodeB) {
+    int colorA = nodeA->color;
+    nodeA->color = nodeB->color;
+    nodeB->color = colorA;
+}
 
-void* printRBT(node* currentNode) {
-    if(currentNode == NULL) printf("NULL ");
-    else printf("%i", *(int*)(currentNode->element));
-    if(currentNode != NULL) {
-        printRBT(currentNode->leftChild);
-        printRBT(currentNode->rightChild);
-        printf("\n");
+/*
+Fix RBT violations after insertions.
+*/
+int fixRBT(RBT* redBlackTree, node* newNode) {
+    if(newNode->parent == NULL) {
+        newNode->color = BLACK;
+        return 0;
     }
+
+    node* uncle = getUncle(newNode);
+    node* parent = newNode->parent;
+    node* grandParent = getGrandParent(newNode);
+
+    if(parent->color == RED) {
+        if(uncle != NULL && uncle->color == RED) {
+            uncle->color = BLACK;
+            parent->color = BLACK;
+            grandParent->color = RED;
+            fixRBT(redBlackTree, grandParent);
+        }
+        else if(grandParent != NULL) {
+            if(parent->leftChild == newNode) {
+                if(grandParent->leftChild == parent) {
+                    rightRotation(redBlackTree, grandParent);
+                }
+                else {
+                    rightRotation(redBlackTree, parent);
+                    leftRotation(redBlackTree, grandParent);
+                }
+            }
+            else {
+                if(grandParent->leftChild == parent) {
+                    leftRotation(redBlackTree, parent);
+                    rightRotation(redBlackTree, grandParent);
+                }
+                else {
+                    leftRotation(redBlackTree, grandParent);
+                }
+            }
+
+            swapColors(parent, grandParent);
+        }
+    }
+}
+
+/*
+Do a simple binary search tree insertion and then fix all the
+violations to make it a valid red-black tree.
+*/
+int RBTInsert(RBT* redBlackTree, node* newNode) {
+    int insert = simpleBSTInsert(redBlackTree, newNode);
+    if(insert == -1) return -1;
+    fixRBT(redBlackTree, newNode);
+    return 0;
 }

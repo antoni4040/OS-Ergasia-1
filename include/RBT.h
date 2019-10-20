@@ -1,10 +1,15 @@
-/* Create by Antonis Karvelas, sdi1600060.
-This is an implementation of a generic red-black tree for the
-1st project of K22: Operating Systems.
+/* 
+Created by Antonis Karvelas, sdi1600060, for the 1st project of
+K22: Operating Systems.
+This is an implementation of a generic red-black tree.
 */
+
+#ifndef ERGASIA_1_RBT_H
+#define ERGASIA_1_RBT_H
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define RED 1
 #define BLACK 0
@@ -31,3 +36,16 @@ struct RBT {
     int (*compare)(node* nodeA, node* keyB);
     node* root;
 } typedef RBT;
+
+node*       initializeNode(void* element);
+RBT*        initializeRedBlackTree(int (*compare)(node* nodeA, node* keyB));
+node*       getGrandParent(node* givenNode);
+node*       getSibling(node* givenNode);
+node*       getUncle(node* givenNode);
+void        leftRotation(RBT* redBlackTree, node* givenNode);
+void        rightRotation(RBT* redBlackTree, node* givenNode);
+int         simpleBSTInsert(RBT* redBlackTree, node* newNode);
+void        swapColors(node* nodeA, node* nodeB);
+int         fixRBT(RBT* redBlackTree, node* newNode);
+int         RBTInsert(RBT* redBlackTree, node* newNode);
+#endif //ERGASIA_1_RBT_H

@@ -14,9 +14,12 @@
                 "${fileDirname}/../src/BF.c",
                 "${fileDirname}/../src/RBT.c",
                 "${fileDirname}/../src/murmur3.c",
+                "${fileDirname}/../src/voter.c",
+                "${fileDirname}/../src/files.c",
                 "${fileDirname}/../src/runelection.c",
                 "-o",
-                "${fileDirname}/../runelection"
+                "${fileDirname}/../runelection",
+                "-lm"
             ],
             "options": {
                 "cwd": "/usr/bin"
