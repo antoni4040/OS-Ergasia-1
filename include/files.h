@@ -25,9 +25,10 @@ struct electionManager {
     unsigned int numberOfUpdates;
 } typedef electionManager;
 
+
 bool                checkInputFileExists(char* inputFile);
 uint32_t            getNumberOfVoters(FILE* input);
-void                readVotersAndUpdateStructures(FILE* input, BF* bf, RBT* rbt);
+void                readVotersAndUpdateStructures(FILE* input, electionManager* manager);
 int                 getVotersFromFile(char* inputFile, electionManager* manager);
 electionManager*    initializeElectionManager(unsigned int numberOfUpdates);
 

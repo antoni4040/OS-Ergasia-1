@@ -72,7 +72,7 @@ Update data structures with new voters.
 but only for large values, and I assume no one has the age of the universe
 or a galactic postcode.)
 */
-void readVotersAndUpdateStructures(FILE* input, BF* bf, RBT* rbt) {
+void readVotersAndUpdateStructures(FILE* input, electionManager* manager) {
     char* IDstring;
     char* name;
     char* surname;
@@ -104,9 +104,11 @@ void readVotersAndUpdateStructures(FILE* input, BF* bf, RBT* rbt) {
         postcode = strtoul(postcodeString, NULL, 10);
 
         voter* newVoter = initializeVoter(IDstring, name, surname, age, voterGender, postcode);
-        insertToBloomFilter(bf, IDstring, strlen(IDstring));
+        insertToBloomFilter(manager->bloomFilter, IDstring, strlen(IDstring));
         node* newNode = initializeNode(newVoter);
-        RBTInsert(rbt, newNode);
+        RBTInsert(manager->redBlackTree, newNode);
+        node* newNodeB = initializeNode(newVoter);
+        insertToHashTable(manager->hashTable, newNodeB);
     }
 }
 
@@ -131,8 +133,9 @@ int getVotersFromFile(char* inputFile, electionManager* manager) {
     manager->redBlackTree = initializeRedBlackTree(&alphanumericCompare);
     manager->redBlackTree->freeNode = &freeNode;
     manager->redBlackTree->printNode = &printNode;
+    manager->hashTable = initializeHashtable();
     
-    readVotersAndUpdateStructures(input, manager->bloomFilter, manager->redBlackTree);
+    readVotersAndUpdateStructures(input, manager);
     //TODO: remove later:
     printRBT(manager->redBlackTree->root, 0);
     printf("Max level %d\n, Items: %d\n", maxLevel, numOfItems);

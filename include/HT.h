@@ -1,10 +1,13 @@
 /* 
 Created by Antonis Karvelas, sdi1600060, for the 1st project of
 K22: Operating Systems.
-This is an implementation of a generic hash table, with each cell
+This is an implementation of a custom hash table, with each cell
 in the table being the root of a red black tree.
+These red-black trees have nodes with postcodeData elements, that
+also have red-black trees with voter data for each postcode.
 I thought that would be interesting, as I've already implemented
 red-black trees for this project.
+It's also pretty to imagine.
 */
 
 #ifndef ERGASIA_1_HT_H
@@ -19,14 +22,23 @@ is fast enough. 521 is a prime number.
 #define HASHTABLE_SIZE 521
 
 #include "RBT.h"
+#include "murmur3.h"
+#include "voter.h"
 
 struct HT {
     RBT** cells;
     int size;
-    int (*hash)(node* givenNode);
 } typedef HT;
 
-HT* initializeHashtable();
-int insertToHashTable(HT* hashtable, node* newItem);
+struct postcodeData {
+    unsigned int postcode;
+    RBT* voters;
+} typedef postcodeData;
+
+postcodeData*   initializePostcodeData(unsigned int postcode);
+HT*             initializeHashtable();
+size_t          hashNodeForHT(HT* hashtable, node* item);
+node*           RBTSearchOrAddPostcode(RBT* rbt, unsigned int postcode);
+int             insertToHashTable(HT* hashtable, node* newItem);
 
 #endif //ERGASIA_1_HT_H

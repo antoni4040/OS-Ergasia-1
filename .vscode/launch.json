@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/runelection",
-            "args": ["-i", "./src/example.csv", "-o", "asdf", "-n", "10"],
+            "args": ["-i", "./TestFiles/10000records.csv", "-o", "asdf", "-n", "10"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

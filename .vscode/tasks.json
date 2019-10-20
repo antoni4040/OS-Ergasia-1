@@ -13,12 +13,12 @@
                 "-g",
                 "${fileDirname}/../src/BF.c",
                 "${fileDirname}/../src/RBT.c",
+                "${fileDirname}/../src/HT.c",
                 "${fileDirname}/../src/murmur3.c",
                 "${fileDirname}/../src/voter.c",
                 "${fileDirname}/../src/files.c",
                 "${fileDirname}/../src/runelection.c",
                 "${fileDirname}/../src/prompt.c",
-                "${fileDirname}/../src/postcode.c",
                 "-o",
                 "${fileDirname}/../runelection",
                 "-lm"
