@@ -66,49 +66,57 @@ uint32_t getNumberOfVoters(FILE* input) {
 }
 
 /*
-Read voter data from given file and create new voters.
-Update data structures with new voters.
+From given line of input, add voter data to all the data structures.
 (Note on code: strtoul for converting to unsigned int can cause problems,
 but only for large values, and I assume no one has the age of the universe
 or a galactic postcode.)
 */
-void readVotersAndUpdateStructures(FILE* input, electionManager* manager) {
-    char* IDstring;
-    char* name;
-    char* surname;
-    char* ageString;
-    char* genderString;
-    char* postcodeString;
-
+void insertVoterToDataStructs(electionManager* manager, char* line, bool print) {
     unsigned int age;
     gender voterGender;
     unsigned int postcode;
 
+    char* IDstring = strtok(line, " ");
+    char* name = strtok(NULL, " ");
+    char* surname = strtok(NULL, " ");
+    char* ageString = strtok(NULL, " ");
+    char* genderString = strtok(NULL, " ");
+    char* postcodeString = strtok(NULL, " ");
+
+    age = strtoul(ageString, NULL, 10); 
+    if(strcmp(genderString, "M") == 0) {
+        voterGender = MALE;
+    }
+    else {
+        voterGender = FEMALE;
+    }
+    postcode = strtoul(postcodeString, NULL, 10);
+
+    voter* newVoter = initializeVoter(IDstring, name, surname, age, voterGender, postcode);
+    insertToBloomFilter(manager->bloomFilter, IDstring, strlen(IDstring));
+    node* newNode = initializeNode(newVoter);
+    int added = RBTInsert(manager->redBlackTree, newNode);
+    if(print) {
+        if(added == -1)
+            printf("REC-WITH %s EXISTS\n", IDstring);
+        else
+            printf("REC-WITH %s INSERTED-IN-BF-RBT\n", IDstring);
+    }
+    if(added == 0) {
+        node* newNodePostcode = initializeNode(newVoter);
+        insertToHashTable(manager->hashTable, newNodePostcode);
+    }
+}
+
+/*
+Read voter data from given file and create new voters.
+Update data structures with new voters.
+*/
+void readVotersAndUpdateStructures(FILE* input, electionManager* manager) {
     char* line = NULL;
     size_t len = 0;
     while (getline(&line, &len, input) != EOF) {
-        IDstring = strtok(line, " ");
-        name = strtok(NULL, " ");
-        surname = strtok(NULL, " ");
-        ageString = strtok(NULL, " ");
-        genderString = strtok(NULL, " ");
-        postcodeString = strtok(NULL, " ");
-
-        age = strtoul(ageString, NULL, 10); 
-        if(strcmp(genderString, "M") == 0) {
-            voterGender = MALE;
-        }
-        else {
-            voterGender = FEMALE;
-        }
-        postcode = strtoul(postcodeString, NULL, 10);
-
-        voter* newVoter = initializeVoter(IDstring, name, surname, age, voterGender, postcode);
-        insertToBloomFilter(manager->bloomFilter, IDstring, strlen(IDstring));
-        node* newNode = initializeNode(newVoter);
-        RBTInsert(manager->redBlackTree, newNode);
-        node* newNodeB = initializeNode(newVoter);
-        insertToHashTable(manager->hashTable, newNodeB);
+        insertVoterToDataStructs(manager, line, false);
     }
 }
 
@@ -138,6 +146,6 @@ int getVotersFromFile(char* inputFile, electionManager* manager) {
     readVotersAndUpdateStructures(input, manager);
     //TODO: remove later:
     printRBT(manager->redBlackTree->root, 0);
-    printf("Max level %d\n, Items: %d\n", maxLevel, numOfItems);
+    printf("Max level %d, Items: %d\n", maxLevel, numOfItems);
     return 0;
 }

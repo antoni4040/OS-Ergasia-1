@@ -52,5 +52,11 @@ A function that prints the voter from an RBT node.
 */
 void printNode(node* nodeToPrint) {
     voter* v = (voter*)(nodeToPrint->element);
-    printf("%s %s %s %u %u\n", v->IDstring, v->name, v->surname, v->postCode, v->age);
+    char genderString[7];
+    if(v->gender == MALE)
+        strcpy(genderString, "MALE");
+    else
+        strcpy(genderString, "FEMALE");
+    printf("%s %s %s %u %s %u\n", v->IDstring, v->name,
+        v->surname, v->age, genderString, v->postCode);
 }

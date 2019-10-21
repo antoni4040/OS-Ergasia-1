@@ -215,6 +215,43 @@ int RBTInsert(RBT* redBlackTree, node* newNode) {
 }
 
 /*
+Given a node (that is the root of a subtree), go through
+the left children to find the minimum value.
+*/
+node* RBTMinValue(node* givenNode) {
+    node* minNode = givenNode;
+    while(minNode->leftChild != NULL)
+        minNode = minNode->leftChild;
+    return minNode;
+}
+
+/*
+Delete a node from a binary search tree. It causes RBT violations
+which we'll fix after the deletion.
+*/
+int simpleBSTDelete(RBT* redBlackTree, node* nodeToDie) {
+    node* found = RBTSearch(redBlackTree, nodeToDie);
+    if(found == NULL) {
+        return -1;
+        redBlackTree->freeNode(nodeToDie);
+    }
+
+    //Node has two children:
+    if(found->leftChild != NULL && found->rightChild != NULL) {
+        node* minNode = RBTMinValue(found->rightChild);
+        void* element = found->element;
+        found->element = minNode->element;
+        minNode->element = element;
+        return simpleBSTDelete(redBlackTree, minNode);
+    }
+    //Node is leaf or has only one child:
+    else {
+        node* onlyChild = found->leftChild != NULL ? found->leftChild : found->rightChild;
+        
+    }
+}
+
+/*
 Go through the tree and search for a given node. This node
 was created only for the compare to work, so free it afterwards.
 */
