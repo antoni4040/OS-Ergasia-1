@@ -147,5 +147,14 @@ int getVotersFromFile(char* inputFile, electionManager* manager) {
     //TODO: remove later:
     printRBT(manager->redBlackTree->root, 0);
     printf("Max level %d, Items: %d\n", maxLevel, numOfItems);
+    voter* spectreVoter = initializeVoter(
+        "XB112605", "name", "surname", 10, MALE, 11111);
+    node* spectreNode = initializeNode(spectreVoter);
+    node* nodeToDelete = RBTSearch(manager->redBlackTree, spectreNode);
+    RBTDelete(manager->redBlackTree, nodeToDelete);
+    maxLevel = 0;
+    numOfItems = 0;
+    printRBT(manager->redBlackTree->root, 0);
+    printf("Max level %d, Items: %d\n", maxLevel, numOfItems);
     return 0;
 }

@@ -159,7 +159,7 @@ void swapColors(node* nodeA, node* nodeB) {
 }
 
 /*
-Fix RBT violations after insertions.
+Fix RBT violations after insertion.
 */
 int fixRBT(RBT* redBlackTree, node* newNode) {
     if(newNode->parent == NULL) {
@@ -226,28 +226,180 @@ node* RBTMinValue(node* givenNode) {
 }
 
 /*
-Delete a node from a binary search tree. It causes RBT violations
-which we'll fix after the deletion.
+RBT deletions rely on replacing nodes. If a node to be deleted
+has both children, find the right-side minimum value, else return the
+child that isn't NULL. If both are NULL, return NULL.
 */
-int simpleBSTDelete(RBT* redBlackTree, node* nodeToDie) {
-    node* found = RBTSearch(redBlackTree, nodeToDie);
-    if(found == NULL) {
-        return -1;
-        redBlackTree->freeNode(nodeToDie);
+node* RBTNodeToReplace(RBT* rbt, node* nodeToDie) {
+    if(nodeToDie->leftChild != NULL && nodeToDie->rightChild != NULL) {
+        return RBTMinValue(nodeToDie->rightChild);
     }
 
-    //Node has two children:
-    if(found->leftChild != NULL && found->rightChild != NULL) {
-        node* minNode = RBTMinValue(found->rightChild);
-        void* element = found->element;
-        found->element = minNode->element;
-        minNode->element = element;
-        return simpleBSTDelete(redBlackTree, minNode);
+    if(nodeToDie->leftChild != NULL) {
+        return nodeToDie->leftChild;
     }
-    //Node is leaf or has only one child:
     else {
-        node* onlyChild = found->leftChild != NULL ? found->leftChild : found->rightChild;
-        
+        return nodeToDie->rightChild; //This also takes care of both children being NULL.
+    }
+}
+
+/*
+Useful for fixing violations in deletion.
+A bit of a communist turn right there, but never mind...
+*/
+node* findRedChildIfExists(node* givenNode) {
+    if(givenNode->leftChild == NULL && givenNode->rightChild == NULL)
+        return NULL;
+    
+    if(givenNode->leftChild != NULL & givenNode->leftChild->color == RED)
+        return givenNode->leftChild;
+    
+    if(givenNode->rightChild != NULL & givenNode->rightChild->color == RED)
+        return givenNode->rightChild;
+
+    return NULL;
+}
+
+/*
+Cases as appear in the GeeksforGeeks red-black trees deletion article.
+Fixes the double-black problems.
+*/
+int RBTDoubleBlackFix(RBT* rbt, node* usurper) {
+    if(usurper->parent == NULL) 
+        return 0;
+    
+    node* sibling = getSibling(usurper);
+
+    if(sibling != NULL) {
+        //3.2.a. Black sibling.
+        if(sibling->color == BLACK) {
+            node* redNode = findRedChildIfExists(sibling);
+            // Sibling has at least one red child:
+            if(redNode != NULL) {
+                bool siblingLeftChild = sibling->parent->leftChild == sibling;
+                bool redLeftChild = redNode->parent->leftChild == redNode;
+                bool bothChildrenRed = (sibling->leftChild != NULL && sibling->leftChild->color == RED) &&
+                    (sibling->rightChild != NULL && sibling->rightChild->color == RED);
+                
+                //Left Left Case:
+                if(siblingLeftChild && (redLeftChild || bothChildrenRed)) {
+                    sibling->leftChild->color = sibling->color;
+                    sibling->color = usurper->parent->color;
+                    rightRotation(rbt, usurper->parent);
+                }
+                //Left Right Case:
+                else if(siblingLeftChild && !redLeftChild) {
+                    sibling->rightChild->color = usurper->parent->color;
+                    leftRotation(rbt, sibling);
+                    rightRotation(rbt, usurper->parent);
+                }
+                //Right Right Case:
+                else if(!siblingLeftChild && (!redLeftChild || bothChildrenRed)){
+                    sibling->rightChild->color = sibling->color;
+                    sibling->color = usurper->parent->color;
+                    leftRotation(rbt, usurper->parent);
+                }
+                //Right Left Case:
+                else if(!siblingLeftChild && !redLeftChild) {
+                    sibling->leftChild->color = usurper->parent->color;
+                    rightRotation(rbt, sibling);
+                    leftRotation(rbt, usurper->parent);
+                }
+                usurper->parent->color = BLACK;
+            }
+            //3.2.b. Sibling has only black children:
+            else {
+                sibling->color = RED;
+                if(usurper->parent->color == BLACK) 
+                    RBTDoubleBlackFix(rbt, usurper->parent);
+                else 
+                    usurper->parent->color = BLACK;
+            }
+        }
+        //3.2.c. Red sibling:
+        else {
+            usurper->parent->color = RED;
+            sibling->color = BLACK;
+            //Left Case:
+            if(sibling->parent->leftChild == sibling) {
+                rightRotation(rbt, usurper->parent);
+            }
+            //Right Case:
+            else {
+                leftRotation(rbt, usurper->parent);
+            }
+        }
+    }
+    else
+        RBTDoubleBlackFix(rbt, usurper->parent);
+}
+
+/*
+This is the GeeksForGeeks version of the algorithm for
+deletion that doesn't require the use of sentinels.
+*/
+int RBTDelete(RBT* rbt, node* nodeToDie) {
+    node* replace = RBTNodeToReplace(rbt, nodeToDie);
+
+    if(replace == NULL) {       //Node to delete has no children.
+        if(nodeToDie->parent == NULL) {     //Node to delete is root.
+            rbt->root = NULL;
+        }
+        else {
+            // Both nodes black. NULL nodes are considered black.
+            if((replace == NULL || replace->color == BLACK) && (
+                nodeToDie->color == BLACK)) {
+                if(replace != NULL)
+                    RBTDoubleBlackFix(rbt, replace);
+            }
+            if(nodeToDie->parent->leftChild == nodeToDie) {
+                nodeToDie->parent->leftChild = NULL;
+            }
+            else {
+                nodeToDie->parent->rightChild = NULL;
+            }
+        }
+        rbt->freeNode(nodeToDie);
+        return 0;
+    }
+
+    // Both children non-NULL, so we have to swap nodes as per normal
+    // BST deletion and delete the swapped node this time.
+    if(nodeToDie->leftChild != NULL && nodeToDie->rightChild != NULL) {
+        void* element = nodeToDie->element;
+        nodeToDie->element = replace->element;
+        replace->element = element;
+        return RBTDelete(rbt, replace);
+    }
+
+
+    // If node to delete is root, simply remove it.
+    if(nodeToDie->parent == NULL) {
+        void* element = nodeToDie->element;
+        nodeToDie->element = replace->element;
+        replace->element = element;
+        rbt->freeNode(replace);
+    }
+    else {
+        // Switch nodes.
+        if(nodeToDie->parent->leftChild == nodeToDie) {
+            nodeToDie->parent->leftChild = replace;
+        }
+        else {
+            nodeToDie->parent->rightChild = replace;
+        }
+        replace->parent = nodeToDie->parent;
+        // Both nodes black. Double black problem.
+        if((replace == NULL || replace->color == BLACK) && (nodeToDie->color == BLACK)) {
+            rbt->freeNode(nodeToDie);
+            if(replace != NULL)
+                RBTDoubleBlackFix(rbt, replace);
+        } 
+        // One of them is red. Color the replace node black.
+        else {
+            rbt->freeNode(nodeToDie);
+            replace->color = BLACK;
+        }
     }
 }
 
