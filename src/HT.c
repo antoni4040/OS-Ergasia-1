@@ -53,7 +53,7 @@ size_t hashNodeForHT(HT* hashtable, node* item) {
 If a postcode exists, return it, else create it and return it.
 */
 node* RBTSearchOrAddPostcode(RBT* rbt, unsigned int postcode) {
-    if(rbt->root == NULL) {
+    if(rbt->root == rbt->NIL) {
         postcodeData* newPostCodeData = initializePostcodeData(postcode);
         node* newNode = initializeNode(newPostCodeData);
         rbt->root = newNode;
@@ -61,9 +61,9 @@ node* RBTSearchOrAddPostcode(RBT* rbt, unsigned int postcode) {
     }
 
     // Iteratively get to the bottom of the RBT, until we hit a null child.
-    node* parentNode = NULL;
+    node* parentNode = rbt->NIL;
     node* currentNode = rbt->root;
-    while(currentNode != NULL){
+    while(currentNode != rbt->NIL){
         if(((voter*)(currentNode->element))->postCode < postcode){
             parentNode = currentNode;
             currentNode = currentNode->leftChild;
@@ -102,5 +102,5 @@ int insertToHashTable(HT* hashtable, node* newVoter) {
     unsigned int postcode = ((voter*)(newVoter->element))->postCode;
     node* postcodeTreeNode = RBTSearchOrAddPostcode(hashtable->cells[hashValue], postcode);
     RBT* postcodeTree = ((postcodeData*)(postcodeTreeNode->element))->voters;
-    RBTInsert(postcodeTree, newVoter);
+    RBInsert(postcodeTree, newVoter);
 }

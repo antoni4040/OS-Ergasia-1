@@ -23,17 +23,17 @@ electionManager* initializeElectionManager(unsigned int numberOfUpdates)
 }
 
 //TODO: remove later
-void* printRBT(node* currentNode, int level) {
+void* printRBT(RBT* rbt, node* currentNode, int level) {
     // if(currentNode == NULL) printf("NULL\n");
     // else printf("l: %i %s __ \n", level, ((voter*)(currentNode->element))->IDstring);
 
-    if(currentNode != NULL) numOfItems++;
+    if(currentNode != rbt->NIL) numOfItems++;
 
-    if(maxLevel < level && currentNode != NULL) maxLevel = level;
+    if(maxLevel < level && currentNode != rbt->NIL) maxLevel = level;
 
-    if(currentNode != NULL) {
-        printRBT(currentNode->leftChild, level+1);
-        printRBT(currentNode->rightChild, level+1);
+    if(currentNode != rbt->NIL) {
+        printRBT(rbt, currentNode->leftChild, level+1);
+        printRBT(rbt, currentNode->rightChild, level+1);
     }
 }
 
@@ -95,7 +95,7 @@ void insertVoterToDataStructs(electionManager* manager, char* line, bool print) 
     voter* newVoter = initializeVoter(IDstring, name, surname, age, voterGender, postcode);
     insertToBloomFilter(manager->bloomFilter, IDstring, strlen(IDstring));
     node* newNode = initializeNode(newVoter);
-    int added = RBTInsert(manager->redBlackTree, newNode);
+    int added = RBInsert(manager->redBlackTree, newNode);
     if(print) {
         if(added == -1)
             printf("REC-WITH %s EXISTS\n", IDstring);
@@ -145,16 +145,16 @@ int getVotersFromFile(char* inputFile, electionManager* manager) {
     
     readVotersAndUpdateStructures(input, manager);
     //TODO: remove later:
-    printRBT(manager->redBlackTree->root, 0);
+    printRBT(manager->redBlackTree, manager->redBlackTree->root, 0);
     printf("Max level %d, Items: %d\n", maxLevel, numOfItems);
     voter* spectreVoter = initializeVoter(
         "XB112605", "name", "surname", 10, MALE, 11111);
     node* spectreNode = initializeNode(spectreVoter);
     node* nodeToDelete = RBTSearch(manager->redBlackTree, spectreNode);
-    RBTDelete(manager->redBlackTree, nodeToDelete);
+    RBDelete(manager->redBlackTree, nodeToDelete);
     maxLevel = 0;
     numOfItems = 0;
-    printRBT(manager->redBlackTree->root, 0);
+    printRBT(manager->redBlackTree, manager->redBlackTree->root, 0);
     printf("Max level %d, Items: %d\n", maxLevel, numOfItems);
     return 0;
 }

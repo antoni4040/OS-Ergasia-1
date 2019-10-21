@@ -35,6 +35,7 @@ struct RBT {
     void (*freeNode)(node* nodeToDie);
     void (*printNode)(node* nodeToPrint);
     node* root;
+    node* NIL;
 } typedef RBT;
 
 node*       initializeNode(void* element);
@@ -50,4 +51,7 @@ int         fixRBT(RBT* redBlackTree, node* newNode);
 int         RBTInsert(RBT* redBlackTree, node* newNode);
 node*       RBTSearch(RBT* redBlackTree, node* nodeForSearch);
 int         RBTDelete(RBT* redBlackTree, node* nodeToDie);
+
+int         RBInsert(RBT* rbt, node* newNode);
+int         RBDelete(RBT* rbt, node* nodeToDie);
 #endif //ERGASIA_1_RBT_H
