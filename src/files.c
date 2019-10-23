@@ -20,6 +20,10 @@ electionManager* initializeElectionManager(unsigned int numberOfUpdates)
     electionManager* newElectionManager = malloc(sizeof(electionManager));
     newElectionManager->numberOfUpdates = numberOfUpdates;
     newElectionManager->updatesSoFar = 0;
+    newElectionManager->numberOfVoters = 0;
+    newElectionManager->bloomFilter = NULL;
+    newElectionManager->hashTable = NULL;
+    newElectionManager->redBlackTree = NULL;
     return newElectionManager;
 }
 
@@ -30,20 +34,24 @@ it recreates the bloom filter.
 void update(electionManager* manager) {
     manager->updatesSoFar++;
     if(manager->updatesSoFar == manager->numberOfUpdates){
-        //TODO: recreate BF
+        BF* newBF = createBFfromRBT(manager->redBlackTree, manager->numberOfVoters);
+        freeBloomFilter(manager->bloomFilter);
+        manager->bloomFilter = newBF;
         manager->updatesSoFar = 0;
     }
 }
 
-//TODO: remove later
-void* printRBT(RBT* rbt, node* currentNode, int level) {
+/*
+A little helping function to find the depth and population of an RBT.
+*/
+void* RBTHealth(RBT* rbt, node* currentNode, int level) {
     if(currentNode != rbt->NIL) numOfItems++;
 
     if(maxLevel < level && currentNode != rbt->NIL) maxLevel = level;
 
     if(currentNode != rbt->NIL) {
-        printRBT(rbt, currentNode->leftChild, level+1);
-        printRBT(rbt, currentNode->rightChild, level+1);
+        RBTHealth(rbt, currentNode->leftChild, level+1);
+        RBTHealth(rbt, currentNode->rightChild, level+1);
     }
 }
 
@@ -118,6 +126,7 @@ void insertVoterToDataStructs(electionManager* manager, char* line, bool print) 
     if(added == NULL) {
         node* newNodePostcode = initializeNode(newVoter);
         insertToHashTable(manager->hashTable, newNodePostcode);
+        manager->numberOfVoters += 1;
     }
 }
 
@@ -156,9 +165,9 @@ int getVotersFromFile(char* inputFile, electionManager* manager) {
     manager->hashTable = initializeHashtable();
     
     readVotersAndUpdateStructures(input, manager);
-    //TODO: remove later:
-    printRBT(manager->redBlackTree, manager->redBlackTree->root, 0);
-    printf("Max level %d, Items: %d\n", maxLevel, numOfItems);
+
+    RBTHealth(manager->redBlackTree, manager->redBlackTree->root, 0);
+    printf("Max level %d, Items: %d.\n", maxLevel, numOfItems);
     fclose(input);
     return 0;
 }

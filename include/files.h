@@ -24,6 +24,7 @@ struct electionManager {
     HT* hashTable;
     unsigned int numberOfUpdates;
     unsigned int updatesSoFar;
+    uint32_t numberOfVoters;
 } typedef electionManager;
 
 

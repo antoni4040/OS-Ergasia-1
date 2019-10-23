@@ -32,6 +32,27 @@ unsigned int age, gender givenGender, unsigned int postCode) {
 }
 
 /*
+Recurse through voter RBT and insert node element to BF.
+*/
+void nodeToBFRecurse(node* givenNode, node* NIL, BF* bf) {
+    if(givenNode != NIL) {
+        char* key = ((voter*)(givenNode->element))->IDstring;
+        insertToBloomFilter(bf, key, strlen(key));
+        nodeToBFRecurse(givenNode->leftChild, NIL, bf);
+        nodeToBFRecurse(givenNode->rightChild, NIL, bf);
+    }
+}
+
+/*
+Helper function to create BF from voter RBT.
+*/
+BF* createBFfromRBT(RBT* rbt, uint32_t population) {
+    BF* newBF = initializeBloomFilter(population);
+    nodeToBFRecurse(rbt->root, rbt->NIL, newBF);
+    return newBF;
+}
+
+/*
 Helper function to search by key in an RBT with voters.
 */
 node* searchVoterInRBT(RBT* rbt, char* key) {
@@ -84,6 +105,7 @@ int voteFromFile(RBT* rbt, char* filePath) {
         line = strtok(line, "\n");
         vote(rbt, line);
     }
+    free(line);
     fclose(votes);
 }
 

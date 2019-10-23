@@ -29,6 +29,8 @@ RBT* initializeRedBlackTree(int (*compare)(node* nodeA, node* keyB),
     redBlackTree->printNode = printN;
     redBlackTree->NIL = initializeNode(NULL);
     redBlackTree->NIL->color = BLACK;
+    redBlackTree->NIL->leftChild = redBlackTree->NIL;
+    redBlackTree->NIL->rightChild = redBlackTree->NIL;
     redBlackTree->root = redBlackTree->NIL;
     return redBlackTree;
 }
@@ -38,11 +40,9 @@ Recursively free the nodes of an RBT using the given freeNode function.
 */
 void freeRBTRecurse(RBT* rbt, node* givenNode, bool freeElement) {
     if(givenNode != rbt->NIL) {
-        node* left = givenNode->leftChild;
-        node* right = givenNode->rightChild;
+        freeRBTRecurse(rbt, givenNode->leftChild, freeElement);
+        freeRBTRecurse(rbt, givenNode->rightChild, freeElement);
         rbt->freeNode(givenNode, freeElement);
-        freeRBTRecurse(rbt, left, freeElement);
-        freeRBTRecurse(rbt, right, freeElement);
     }
 }
 

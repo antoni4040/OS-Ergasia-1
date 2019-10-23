@@ -92,7 +92,7 @@ size_t hashNodeForHT(HT* hashtable, node* item) {
 For a given postcode return voters' RBT.
 */
 RBT* searchPostCodeRBT(HT* hashtable, unsigned int postcode) {
-    char* key = malloc(sizeof(10) * sizeof(char));
+    char* key = malloc(10 * sizeof(char));
     sprintf(key, "%u", postcode);
     size_t* hash = (size_t*)malloc(sizeof(size_t));
     *hash = 0;
@@ -102,6 +102,8 @@ RBT* searchPostCodeRBT(HT* hashtable, unsigned int postcode) {
     node* spectrePostCodeNode = initializeNode(spectrePostCode);
     node* postcodeTree = RBSearch(hashtable->cells[*hash], spectrePostCodeNode);
     hashtable->cells[*hash]->freeNode(spectrePostCodeNode, true);
+    free(hash);
+    free(key);
     return ((postcodeData*)(postcodeTree->element))->voters;
 }
 

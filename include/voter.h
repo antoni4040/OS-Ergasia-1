@@ -14,6 +14,7 @@ K22: Operating Systems.
 #include <string.h>
 
 #include "RBT.h"
+#include "BF.h"
 
 typedef enum {
     MALE,
@@ -33,6 +34,7 @@ struct voter {
 voter*          initializeVoter(char* IDstring, char* name, char* surname, 
                 unsigned int age, gender givenGender, unsigned int postCode);
 node*           searchVoterInRBT(RBT* rbt, char* key);
+BF*             createBFfromRBT(RBT* rbt, uint32_t population);
 void            vote(RBT* rbt, char* key);
 int             voteFromFile(RBT* rbt, char* filePath);
 unsigned int    countVotesInRBT(RBT* rbt);

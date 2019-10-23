@@ -97,12 +97,28 @@ int commandPrompt(electionManager* manager) {
             else {
                 //Search red-black tree:
                 node* findVoter = searchVoterInRBT(manager->redBlackTree, key);
-                if(findVoter == NULL) {
+                if(findVoter == manager->redBlackTree->NIL) {
                     printf("KEY %s NOT-in-structs\n", key);
                 }
                 else {
                     //Remove from red-black tree:
                     RBDelete(manager->redBlackTree, findVoter);
+                    //Remove from postcode hashtable:
+                    unsigned int postcode = ((voter*)(findVoter->element))->postCode;
+                    RBT* postcodeRBT = searchPostCodeRBT(manager->hashTable, postcode);
+                    node* findVoterInPC = searchVoterInRBT(postcodeRBT, key);
+                    RBDelete(postcodeRBT, findVoterInPC);
+
+                    //Free deleted node:
+                    manager->redBlackTree->freeNode(findVoter, false);
+                    postcodeRBT->freeNode(findVoterInPC, true);
+
+                    manager->numberOfVoters -= 1;
+
+                    //Update and check if BF needs restructuring:
+                    update(manager);
+
+                    printf("# DELETED %s FROM-structs\n", key);
                 }
             }
         }
