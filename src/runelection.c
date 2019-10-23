@@ -1,8 +1,8 @@
 #include "runelection.h"
 
 int main(int argc, char **argv) {
-    char* inputFile;
-    char* outputFile;
+    char* inputFile = NULL;
+    char* outputFile = NULL;
     unsigned int numberOfUpdates;
 
     // Abort if no command line arguments given:
@@ -17,13 +17,15 @@ int main(int argc, char **argv) {
     {
         if(strcmp(argv[i], "-i") == 0) {
             i++;
-            inputFile = malloc(strlen(argv[i]) * sizeof(char));
+            inputFile = malloc(strlen(argv[i]) * sizeof(char) + 1);
             strcpy(inputFile, argv[i]);
+            inputFile[strlen(argv[i])] = '\0';
         }
         else if(strcmp(argv[i], "-o") == 0) {
             i++;
-            outputFile = malloc(strlen(argv[i]) * sizeof(char));
+            outputFile = malloc(strlen(argv[i]) * sizeof(char) + 1);
             strcpy(outputFile, argv[i]);
+            outputFile[strlen(argv[i])] = '\0';
         }
         else if(strcmp(argv[i], "-n") == 0) {
             i++;
@@ -42,6 +44,12 @@ int main(int argc, char **argv) {
     getVotersFromFile(inputFile, manager);
 
     commandPrompt(manager);
+
+    if(inputFile != NULL)
+        free(inputFile);
+    if(outputFile != NULL)
+        free(outputFile);
+    free(manager);
 
     return 0;
 }

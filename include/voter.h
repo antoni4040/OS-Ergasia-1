@@ -30,10 +30,15 @@ struct voter {
     unsigned int hasVoted: 1;
 } typedef voter;
 
-voter*      initializeVoter(char* IDstring, char* name, char* surname, 
-            unsigned int age, gender givenGender, unsigned int postCode);
-int         alphanumericCompare(node* A, node* B);
-void        freeNode(node* nodeToDie);
-void        printNode(node* nodeToPrint);
+voter*          initializeVoter(char* IDstring, char* name, char* surname, 
+                unsigned int age, gender givenGender, unsigned int postCode);
+node*           searchVoterInRBT(RBT* rbt, char* key);
+void            vote(RBT* rbt, char* key);
+int             voteFromFile(RBT* rbt, char* filePath);
+unsigned int    countVotesInRBT(RBT* rbt);
+int             alphanumericCompare(node* A, node* B);
+void            freeVoterNode(node* nodeToDie, bool freeElement);
+void            printVoter(voter* v);
+void            printVoterNode(node* nodeToPrint);
 
 #endif //ERGASIA_1_VOTER_H

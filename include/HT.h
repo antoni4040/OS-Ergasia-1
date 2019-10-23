@@ -37,8 +37,10 @@ struct postcodeData {
 
 postcodeData*   initializePostcodeData(unsigned int postcode);
 HT*             initializeHashtable();
+void            freeHashTable(HT* hashtable);
 size_t          hashNodeForHT(HT* hashtable, node* item);
-node*           RBTSearchOrAddPostcode(RBT* rbt, unsigned int postcode);
+RBT*            searchPostCodeRBT(HT* hashtable, unsigned int postcode);
 int             insertToHashTable(HT* hashtable, node* newItem);
+void            postCodeStatistics(HT* hashTable);
 
 #endif //ERGASIA_1_HT_H

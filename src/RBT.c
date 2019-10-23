@@ -15,17 +15,18 @@ node* initializeNode(void* element) {
     newNode->element = element;
     newNode->color = RED;
     newNode->parent = NULL;
-    newNode->leftChild = NULL;
-    newNode->rightChild = NULL;
 }
 
 /*
 Initialize a red-black tree with a given compare function.
 The root node will be set to null.
 */
-RBT* initializeRedBlackTree(int (*compare)(node* nodeA, node* keyB)) {
+RBT* initializeRedBlackTree(int (*compare)(node* nodeA, node* keyB),
+    void (*freeN)(node* nodeToFree, bool freeElement), void (*printN)(node* nodeToPrint)) {
     RBT* redBlackTree = malloc(sizeof(RBT));
     redBlackTree->compare = compare;
+    redBlackTree->freeNode = freeN;
+    redBlackTree->printNode = printN;
     redBlackTree->NIL = initializeNode(NULL);
     redBlackTree->NIL->color = BLACK;
     redBlackTree->root = redBlackTree->NIL;
@@ -33,32 +34,25 @@ RBT* initializeRedBlackTree(int (*compare)(node* nodeA, node* keyB)) {
 }
 
 /*
-Return a node's grandparent in the tree. It will return null if
-the given node is a direct child of the root node.
+Recursively free the nodes of an RBT using the given freeNode function.
 */
-node* getGrandParent(node* givenNode) {
-    return (givenNode->parent != NULL ? (givenNode->parent)->parent : NULL);
+void freeRBTRecurse(RBT* rbt, node* givenNode, bool freeElement) {
+    if(givenNode != rbt->NIL) {
+        node* left = givenNode->leftChild;
+        node* right = givenNode->rightChild;
+        rbt->freeNode(givenNode, freeElement);
+        freeRBTRecurse(rbt, left, freeElement);
+        freeRBTRecurse(rbt, right, freeElement);
+    }
 }
 
 /*
-Return a node's sibling. It will return null if the 
-given node is the root node.
+Free the content of an RBT.
 */
-node* getSibling(node* givenNode) {
-    node* parent = givenNode->parent;
-    if(parent == NULL) return NULL;
-    if(parent->leftChild == givenNode) return parent->rightChild;
-    return  parent->leftChild;
-}
-
-/*
-Return a node's uncle, meaning the sibling of its parent.
-It will return null if the given node is the root node or the 
-direct child of the root node.
-*/
-node* getUncle(node* givenNode) {
-    if(givenNode->parent == NULL) return NULL;
-    return getSibling(givenNode->parent);
+void freeRedBlackTree(RBT* rbt, bool freeElement) {
+    freeRBTRecurse(rbt, rbt->root, freeElement);
+    free(rbt->NIL);
+    free(rbt);
 }
 
 /*
@@ -122,12 +116,10 @@ node* TreeMinimum(RBT* rbt, node* givenNode) {
 }
 
 /*
-Go through the tree and search for a given node. This node
-was created only for the compare to work, so free it afterwards.
+Go through the tree and search for a given node.
 */
-node* RBTSearch(RBT* rbt, node* nodeForSearch) {
+node* RBSearch(RBT* rbt, node* nodeForSearch) {
     if(rbt->root == rbt->NIL) {
-        rbt->freeNode(nodeForSearch);
         return rbt->NIL;   //Tree is empty, nothing to find.
     }
 
@@ -144,11 +136,9 @@ node* RBTSearch(RBT* rbt, node* nodeForSearch) {
             currentNode = currentNode->rightChild;
         }
         else {
-            rbt->freeNode(nodeForSearch);
             return currentNode; //Node found.
         }
     }
-    rbt->freeNode(nodeForSearch);
     return rbt->NIL; //Node not found.
 }
 
@@ -203,17 +193,23 @@ void RBInsertFixup(RBT* rbt, node* newNode) {
 /*
 Red-Black Tree Insert as described in CLRS.
 */
-int RBInsert(RBT* rbt, node* newNode) {
+node* RBInsert(RBT* rbt, node* newNode) {
     node* parent = rbt->NIL;
     node* current = rbt->root;
+
+    newNode->leftChild = rbt->NIL;
+    newNode->rightChild = rbt->NIL;
+
     while(current != rbt->NIL) {
         parent = current;
         if(rbt->compare(newNode, current) < 0)
             current = current->leftChild;
         else if(rbt->compare(newNode, current) > 0)
             current = current->rightChild;
-        else 
-            return -1;
+        else {
+            rbt->freeNode(newNode, true);
+            return current;
+        }
     }
     newNode->parent = parent;
     if(parent == rbt->NIL)
@@ -222,10 +218,10 @@ int RBInsert(RBT* rbt, node* newNode) {
         parent->leftChild = newNode;
     else
         parent->rightChild = newNode;
-    newNode->leftChild = rbt->NIL;
-    newNode->rightChild = rbt->NIL;
     newNode->color = RED;
     RBInsertFixup(rbt, newNode);
+
+    return NULL;
 }
 
 /*
@@ -245,56 +241,56 @@ void RBTransplant(RBT* rbt, node* removed, node* added) {
 Red-Black Tree Deletion Fix Violations as described in CLRS.
 */
 void RBDeleteFixup(RBT* rbt, node* current) {
-    node* w;
+    node* sibling;
     while(current != rbt->NIL && current->color == BLACK) {
         if(current == current->parent->leftChild) {
-            w = current->parent->rightChild;
-            if(w->color == RED) {
-                w->color = BLACK;
+            sibling = current->parent->rightChild;
+            if(sibling->color == RED) {
+                sibling->color = BLACK;
                 current->parent->color = RED;
                 leftRotation(rbt, current->parent);
-                w = current->parent->rightChild;
+                sibling = current->parent->rightChild;
             }
-            if(w->leftChild->color == BLACK && w->rightChild->color==BLACK) {
-                w->color = RED;
+            if(sibling->leftChild->color == BLACK && sibling->rightChild->color==BLACK) {
+                sibling->color = RED;
                 current = current->parent;
             }
             else { 
-                if(w->rightChild->color == BLACK) {
-                    w->leftChild->color = BLACK;
-                    w->color = RED;
-                    rightRotation(rbt, w);
-                    w = current->parent->rightChild;
+                if(sibling->rightChild->color == BLACK) {
+                    sibling->leftChild->color = BLACK;
+                    sibling->color = RED;
+                    rightRotation(rbt, sibling);
+                    sibling = current->parent->rightChild;
                 }
-                w->color = current->parent->color;
+                sibling->color = current->parent->color;
                 current->parent->color = BLACK;
-                w->rightChild->color = BLACK;
+                sibling->rightChild->color = BLACK;
                 leftRotation(rbt, current->parent);
                 current = rbt->root;
             }
         }
         else {
-            w = current->parent->leftChild;
-            if(w->color == RED) {
-                w->color = BLACK;
+            sibling = current->parent->leftChild;
+            if(sibling->color == RED) {
+                sibling->color = BLACK;
                 current->parent->color = RED;
                 rightRotation(rbt, current->parent);
-                w = current->parent->leftChild;
+                sibling = current->parent->leftChild;
             }
-            if(w->rightChild->color == BLACK && w->leftChild->color==BLACK) {
-                w->color = RED;
+            if(sibling->rightChild->color == BLACK && sibling->leftChild->color==BLACK) {
+                sibling->color = RED;
                 current = current->parent;
             }
             else { 
-                if(w->leftChild->color == BLACK) {
-                    w->rightChild->color = BLACK;
-                    w->color = RED;
-                    leftRotation(rbt, w);
-                    w = current->parent->leftChild;
+                if(sibling->leftChild->color == BLACK) {
+                    sibling->rightChild->color = BLACK;
+                    sibling->color = RED;
+                    leftRotation(rbt, sibling);
+                    sibling = current->parent->leftChild;
                 }
-                w->color = current->parent->color;
+                sibling->color = current->parent->color;
                 current->parent->color = BLACK;
-                w->leftChild->color = BLACK;
+                sibling->leftChild->color = BLACK;
                 rightRotation(rbt, current->parent);
                 current = rbt->root;
             }
@@ -309,7 +305,7 @@ Red-Black Tree Deletion as described in CLRS.
 int RBDelete(RBT* rbt, node* nodeToDie) {
     node* copy = nodeToDie;
     node* current;
-    int y_original_color = copy->color;
+    int rememberColor = copy->color;
     if(nodeToDie->leftChild == rbt->NIL) {
         current = nodeToDie->rightChild;
         RBTransplant(rbt, nodeToDie, nodeToDie->rightChild);
@@ -320,7 +316,7 @@ int RBDelete(RBT* rbt, node* nodeToDie) {
     }
     else {
         copy = TreeMinimum(rbt, nodeToDie->rightChild);
-        y_original_color = copy->color;
+        rememberColor = copy->color;
         current = copy->rightChild;
         if(copy->parent == nodeToDie)
             current->parent = copy;
@@ -334,6 +330,6 @@ int RBDelete(RBT* rbt, node* nodeToDie) {
         copy->leftChild->parent = copy;
         copy->color = nodeToDie->color;
     }
-    if(y_original_color == BLACK)
+    if(rememberColor == BLACK)
         RBDeleteFixup(rbt, nodeToDie);
 }

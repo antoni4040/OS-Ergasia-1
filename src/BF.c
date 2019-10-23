@@ -43,6 +43,10 @@ size_t** createHashTriplet(size_t bloomFilterSize, char* key, int keyLength) {
     hashTriplet[1] = malloc(sizeof(size_t));
     hashTriplet[2] = malloc(sizeof(size_t));
 
+    *hashTriplet[0] = 0;
+    *hashTriplet[1] = 0;
+    *hashTriplet[2] = 0;
+
     MurmurHash3_x86_32(key, keyLength, 314, hashTriplet[0]);
     MurmurHash3_x86_32(key, keyLength, 159, hashTriplet[1]);
     MurmurHash3_x86_32(key, keyLength, 265, hashTriplet[2]);

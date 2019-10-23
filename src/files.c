@@ -19,14 +19,24 @@ electionManager* initializeElectionManager(unsigned int numberOfUpdates)
 {
     electionManager* newElectionManager = malloc(sizeof(electionManager));
     newElectionManager->numberOfUpdates = numberOfUpdates;
+    newElectionManager->updatesSoFar = 0;
     return newElectionManager;
+}
+
+/*
+Called every time an update happens. If numofupdates is reached,
+it recreates the bloom filter.
+*/
+void update(electionManager* manager) {
+    manager->updatesSoFar++;
+    if(manager->updatesSoFar == manager->numberOfUpdates){
+        //TODO: recreate BF
+        manager->updatesSoFar = 0;
+    }
 }
 
 //TODO: remove later
 void* printRBT(RBT* rbt, node* currentNode, int level) {
-    // if(currentNode == NULL) printf("NULL\n");
-    // else printf("l: %i %s __ \n", level, ((voter*)(currentNode->element))->IDstring);
-
     if(currentNode != rbt->NIL) numOfItems++;
 
     if(maxLevel < level && currentNode != rbt->NIL) maxLevel = level;
@@ -61,6 +71,7 @@ uint32_t getNumberOfVoters(FILE* input) {
     while (getline(&line, &len, input) != EOF) {
         numberOfVoters++;
     }
+    free(line);
     rewind(input);
     return numberOfVoters;
 }
@@ -95,14 +106,16 @@ void insertVoterToDataStructs(electionManager* manager, char* line, bool print) 
     voter* newVoter = initializeVoter(IDstring, name, surname, age, voterGender, postcode);
     insertToBloomFilter(manager->bloomFilter, IDstring, strlen(IDstring));
     node* newNode = initializeNode(newVoter);
-    int added = RBInsert(manager->redBlackTree, newNode);
+    node* added = RBInsert(manager->redBlackTree, newNode);
     if(print) {
-        if(added == -1)
+        if(added != NULL)
             printf("REC-WITH %s EXISTS\n", IDstring);
-        else
+        else {
+            update(manager);
             printf("REC-WITH %s INSERTED-IN-BF-RBT\n", IDstring);
+        }
     }
-    if(added == 0) {
+    if(added == NULL) {
         node* newNodePostcode = initializeNode(newVoter);
         insertToHashTable(manager->hashTable, newNodePostcode);
     }
@@ -118,6 +131,7 @@ void readVotersAndUpdateStructures(FILE* input, electionManager* manager) {
     while (getline(&line, &len, input) != EOF) {
         insertVoterToDataStructs(manager, line, false);
     }
+    free(line);
 }
 
 /*
@@ -138,23 +152,13 @@ int getVotersFromFile(char* inputFile, electionManager* manager) {
     uint32_t numberOfVoters = getNumberOfVoters(input);
 
     manager->bloomFilter = initializeBloomFilter(numberOfVoters);
-    manager->redBlackTree = initializeRedBlackTree(&alphanumericCompare);
-    manager->redBlackTree->freeNode = &freeNode;
-    manager->redBlackTree->printNode = &printNode;
+    manager->redBlackTree = initializeRedBlackTree(&alphanumericCompare, &freeVoterNode, &printVoterNode);
     manager->hashTable = initializeHashtable();
     
     readVotersAndUpdateStructures(input, manager);
     //TODO: remove later:
     printRBT(manager->redBlackTree, manager->redBlackTree->root, 0);
     printf("Max level %d, Items: %d\n", maxLevel, numOfItems);
-    voter* spectreVoter = initializeVoter(
-        "XB112605", "name", "surname", 10, MALE, 11111);
-    node* spectreNode = initializeNode(spectreVoter);
-    node* nodeToDelete = RBTSearch(manager->redBlackTree, spectreNode);
-    RBDelete(manager->redBlackTree, nodeToDelete);
-    maxLevel = 0;
-    numOfItems = 0;
-    printRBT(manager->redBlackTree, manager->redBlackTree->root, 0);
-    printf("Max level %d, Items: %d\n", maxLevel, numOfItems);
+    fclose(input);
     return 0;
 }

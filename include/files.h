@@ -23,6 +23,7 @@ struct electionManager {
     RBT* redBlackTree;
     HT* hashTable;
     unsigned int numberOfUpdates;
+    unsigned int updatesSoFar;
 } typedef electionManager;
 
 
@@ -32,5 +33,6 @@ void                readVotersAndUpdateStructures(FILE* input, electionManager* 
 void                insertVoterToDataStructs(electionManager* manager, char* line, bool print);
 int                 getVotersFromFile(char* inputFile, electionManager* manager);
 electionManager*    initializeElectionManager(unsigned int numberOfUpdates);
+void                update(electionManager* manager);
 
 #endif //ERGASIA_1_FILES_H

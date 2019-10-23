@@ -8,7 +8,7 @@ This is the implementation of command prompt.
 
 int commandPrompt(electionManager* manager) {
     char* command;
-    char* line;
+    char* line = NULL;
     char* rest;
     size_t len = 0;
 
@@ -27,7 +27,10 @@ int commandPrompt(electionManager* manager) {
         printf("%s\n", command);
 
         if(strcmp(command, "exit") == 0) {
-            return 0;
+            freeRedBlackTree(manager->redBlackTree, true);
+            freeHashTable(manager->hashTable);
+            freeBloomFilter(manager->bloomFilter);
+            break;
         }
         else if(strcmp(command, "lbf") == 0) {
             char* key = strtok_r(rest, " ", &rest);
@@ -51,11 +54,8 @@ int commandPrompt(electionManager* manager) {
                 printf("No key given. Nothing to do.\n");
             }
             else {
-                voter* spectreVoter = initializeVoter(
-                    key, "name", "surname", 10, MALE, 11111);
-                node* spectreNode = initializeNode(spectreVoter);
-                node* findInRBT = RBTSearch(manager->redBlackTree, spectreNode);
-                if(findInRBT != NULL) {
+                voter* findVoter = (voter*)(searchVoterInRBT(manager->redBlackTree, key)->element);
+                if(findVoter != NULL) {
                     printf("KEY %s FOUND-IN-RBT\n", key);
                 }
                 else {
@@ -75,13 +75,10 @@ int commandPrompt(electionManager* manager) {
                 bool perhapsExists = searchBloomFilter(
                     manager->bloomFilter, key, strlen(key));
                 if(perhapsExists) {
-                    voter* spectreVoter = initializeVoter(
-                        key, "name", "surname", 10, MALE, 11111);
-                    node* spectreNode = initializeNode(spectreVoter);
-                    node* findInRBT = RBTSearch(manager->redBlackTree, spectreNode);
-                    if(findInRBT != NULL) {
+                    voter* findVoter = (voter*)(searchVoterInRBT(manager->redBlackTree, key)->element);
+                    if(findVoter != NULL) {
                         printf("REC-IS: ");
-                        manager->redBlackTree->printNode(findInRBT);
+                        printVoter(findVoter);
                     }
                     else {
                         printf("REC-WITH %s NOT-in-structs\n", key);
@@ -92,16 +89,72 @@ int commandPrompt(electionManager* manager) {
                 }
             }
         }
+        else if(strcmp(command, "delete") == 0) {
+            char* key = strtok_r(rest, " ", &rest);
+            if(key == NULL) {
+                printf("No key given. Nothing to do.\n");
+            }
+            else {
+                //Search red-black tree:
+                node* findVoter = searchVoterInRBT(manager->redBlackTree, key);
+                if(findVoter == NULL) {
+                    printf("KEY %s NOT-in-structs\n", key);
+                }
+                else {
+                    //Remove from red-black tree:
+                    RBDelete(manager->redBlackTree, findVoter);
+                }
+            }
+        }
         else if(strcmp(command, "vote") == 0) {
             char* key = strtok_r(rest, " ", &rest);
             if(key == NULL) {
                 printf("No key given. Nothing to do.\n");
             }
             else {
+                vote(manager->redBlackTree, key);
             }
         }
+        else if(strcmp(command, "load") == 0) {
+            char* fileofkeys = strtok_r(rest, " ", &rest);
+            if(fileofkeys == NULL) {
+                printf("No file of keys given. Nothing to do.\n");
+            }
+            else {
+                if(checkInputFileExists(fileofkeys)) {
+                    voteFromFile(manager->redBlackTree, fileofkeys);
+                }
+            }
+        }
+        else if(strcmp(command, "voted") == 0) {
+            char* postcodeString = strtok_r(rest, " ", &rest);
+            unsigned int votes;
+            if(postcodeString == NULL) {
+                //Show total votes:
+                votes = countVotesInRBT(manager->redBlackTree);
+                printf("NUMBER %u\n", votes);
+            }
+            else {
+                //Show total votes in postcode:
+                unsigned int postcode = strtoul(postcodeString, NULL, 10);
+                RBT* postcodeTree = searchPostCodeRBT(manager->hashTable, postcode);
+                if(postcodeTree == NULL) {
+                    printf("Postcode not found.\n");
+                }
+                else {
+                    votes = countVotesInRBT(postcodeTree);
+                    printf("IN %u VOTERS-ARE %u\n", postcode, votes);
+                }
+            }
+        }
+        else if(strcmp(command, "votedperpc") == 0) {
+            postCodeStatistics(manager->hashTable);
+        }
+        
 
         putchar('~');
         putchar(' ');
     }
+
+    free(line);
 }
