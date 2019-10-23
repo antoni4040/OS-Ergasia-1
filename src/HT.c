@@ -104,7 +104,10 @@ RBT* searchPostCodeRBT(HT* hashtable, unsigned int postcode) {
     hashtable->cells[*hash]->freeNode(spectrePostCodeNode, true);
     free(hash);
     free(key);
-    return ((postcodeData*)(postcodeTree->element))->voters;
+    if(postcodeTree->element != NULL)
+        return ((postcodeData*)(postcodeTree->element))->voters;
+    else
+        return NULL;
 }
 
 /*
