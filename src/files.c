@@ -7,7 +7,9 @@ Everything that has to do with file reading/writing is in here.
 
 #include "files.h"
 
-//TODO: remove later
+/*
+Helper global variables to check for validity of RBT:
+*/
 int maxLevel = 0;
 int numOfItems = 0;
 

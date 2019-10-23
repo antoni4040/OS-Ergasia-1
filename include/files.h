@@ -29,12 +29,13 @@ struct electionManager {
 } typedef electionManager;
 
 
-bool                checkInputFileExists(char* inputFile);
-uint32_t            getNumberOfVoters(FILE* input);
-void                readVotersAndUpdateStructures(FILE* input, electionManager* manager);
-void                insertVoterToDataStructs(electionManager* manager, char* line, bool print);
-int                 getVotersFromFile(char* inputFile, electionManager* manager);
 electionManager*    initializeElectionManager(unsigned int numberOfUpdates, char* outputFile);
 void                update(electionManager* manager);
+void                RBTHealth(RBT* rbt, node* currentNode, int level);
+bool                checkInputFileExists(char* inputFile);
+uint32_t            getNumberOfVoters(FILE* input);
+void                insertVoterToDataStructs(electionManager* manager, char* line, bool print);
+void                readVotersAndUpdateStructures(FILE* input, electionManager* manager);
+int                 getVotersFromFile(char* inputFile, electionManager* manager);
 
 #endif //ERGASIA_1_FILES_H

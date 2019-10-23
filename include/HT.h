@@ -36,6 +36,8 @@ struct postcodeData {
 } typedef postcodeData;
 
 postcodeData*   initializePostcodeData(unsigned int postcode);
+void            freePostcodeDataNode(node* nodeToFree, bool freeElement);
+int             comparePostcodeDataNodes(node* nodeA, node* nodeB);
 HT*             initializeHashtable();
 void            freeHashTable(HT* hashtable);
 size_t          hashNodeForHT(HT* hashtable, node* item);

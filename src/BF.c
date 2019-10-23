@@ -124,12 +124,3 @@ size_t findFirstPrime(size_t size, int multiplier) {
     return number;
 }
 
-//TODO: helper function, remove before the end.
-void printUINT32Bits(uint32_t num) {
-    for(int bitPos=0; bitPos<32; bitPos++)
-    {
-        printf("%i ", num & 0x01);
-        num = num >> 1;
-    }
-}
-
