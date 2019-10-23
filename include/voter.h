@@ -42,5 +42,6 @@ int             alphanumericCompare(node* A, node* B);
 void            freeVoterNode(node* nodeToDie, bool freeElement);
 void            printVoter(voter* v);
 void            printVoterNode(node* nodeToPrint);
+void            exportRegistry(RBT* rbt, char* outputFile);    
 
 #endif //ERGASIA_1_VOTER_H

@@ -27,6 +27,7 @@ int commandPrompt(electionManager* manager) {
         printf("%s\n", command);
 
         if(strcmp(command, "exit") == 0) {
+            exportRegistry(manager->redBlackTree, manager->outputFile);
             freeRedBlackTree(manager->redBlackTree, true);
             freeHashTable(manager->hashTable);
             freeBloomFilter(manager->bloomFilter);
@@ -41,10 +42,10 @@ int commandPrompt(electionManager* manager) {
                 bool perhapsExists = searchBloomFilter(
                     manager->bloomFilter, key, strlen(key));
                 if(perhapsExists) {
-                    printf("KEY %s POSSIBLY-IN REGISTRY\n", key);
+                    printf("# KEY %s POSSIBLY-IN REGISTRY\n", key);
                 }
                 else {
-                    printf("KEY %s Not-in-LBF\n", key);
+                    printf("# KEY %s Not-in-LBF\n", key);
                 }
             }
         }
@@ -56,10 +57,10 @@ int commandPrompt(electionManager* manager) {
             else {
                 voter* findVoter = (voter*)(searchVoterInRBT(manager->redBlackTree, key)->element);
                 if(findVoter != NULL) {
-                    printf("KEY %s FOUND-IN-RBT\n", key);
+                    printf("# KEY %s FOUND-IN-RBT\n", key);
                 }
                 else {
-                    printf("KEY %s NOT-IN-RBT\n", key);
+                    printf("# KEY %s NOT-IN-RBT\n", key);
                 }
             }
         }
@@ -77,15 +78,15 @@ int commandPrompt(electionManager* manager) {
                 if(perhapsExists) {
                     voter* findVoter = (voter*)(searchVoterInRBT(manager->redBlackTree, key)->element);
                     if(findVoter != NULL) {
-                        printf("REC-IS: ");
+                        printf("# REC-IS: ");
                         printVoter(findVoter);
                     }
                     else {
-                        printf("REC-WITH %s NOT-in-structs\n", key);
+                        printf("# REC-WITH %s NOT-in-structs\n", key);
                     }
                 }
                 else {
-                    printf("REC-WITH %s NOT-in-structs\n", key);
+                    printf("# REC-WITH %s NOT-in-structs\n", key);
                 }
             }
         }
@@ -98,7 +99,7 @@ int commandPrompt(electionManager* manager) {
                 //Search red-black tree:
                 node* findVoter = searchVoterInRBT(manager->redBlackTree, key);
                 if(findVoter == manager->redBlackTree->NIL) {
-                    printf("KEY %s NOT-in-structs\n", key);
+                    printf("# KEY %s NOT-in-structs\n", key);
                 }
                 else {
                     //Remove from red-black tree:
@@ -148,7 +149,7 @@ int commandPrompt(electionManager* manager) {
             if(postcodeString == NULL) {
                 //Show total votes:
                 votes = countVotesInRBT(manager->redBlackTree);
-                printf("NUMBER %u\n", votes);
+                printf("# NUMBER %u\n", votes);
             }
             else {
                 //Show total votes in postcode:
@@ -159,7 +160,7 @@ int commandPrompt(electionManager* manager) {
                 }
                 else {
                     votes = countVotesInRBT(postcodeTree);
-                    printf("IN %u VOTERS-ARE %u\n", postcode, votes);
+                    printf("# IN %u VOTERS-ARE %u\n", postcode, votes);
                 }
             }
         }

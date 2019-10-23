@@ -15,7 +15,7 @@ int numOfItems = 0;
 An election manager is a struct that combines all the useful data structures
 into one for ease of use.
 */
-electionManager* initializeElectionManager(unsigned int numberOfUpdates)
+electionManager* initializeElectionManager(unsigned int numberOfUpdates, char* outputFile)
 {
     electionManager* newElectionManager = malloc(sizeof(electionManager));
     newElectionManager->numberOfUpdates = numberOfUpdates;
@@ -24,6 +24,7 @@ electionManager* initializeElectionManager(unsigned int numberOfUpdates)
     newElectionManager->bloomFilter = NULL;
     newElectionManager->hashTable = NULL;
     newElectionManager->redBlackTree = NULL;
+    newElectionManager->outputFile = outputFile;
     return newElectionManager;
 }
 

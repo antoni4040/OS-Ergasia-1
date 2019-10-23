@@ -75,15 +75,15 @@ Given a voter ID, vote and/or print messages accordingly.
 void vote(RBT* rbt, char* key) {
     voter* findVoter = (voter*)(searchVoterInRBT(rbt, key)->element);
     if(findVoter == NULL) {
-        printf("REC-WITH %s NOT-in-structs\n", key);
+        printf("# REC-WITH %s NOT-in-structs\n", key);
     }
     else {
         if(findVoter->hasVoted == VOTED) {
-            printf("REC-WITH %s ALREADY-VOTED\n", key);
+            printf("# REC-WITH %s ALREADY-VOTED\n", key);
         }
         else {
             findVoter->hasVoted = VOTED;
-            printf("REC-WITH %s SET-VOTED\n", key);
+            printf("# REC-WITH %s SET-VOTED\n", key);
         }
     }
 }
@@ -181,4 +181,38 @@ A function that prints the voter from an RBT node.
 void printVoterNode(node* nodeToPrint) {
     voter* v = (voter*)(nodeToPrint->element);
     printVoter(v);
+}
+
+/*
+Write voter data to output file.
+*/
+void writeVoterToFile(voter* currentVoter, FILE* file) {
+    if(currentVoter->gender == MALE)
+        fprintf(file, "%s %s %s %u M %u\n", currentVoter->IDstring, currentVoter->name,
+            currentVoter->surname, currentVoter->age, currentVoter->postCode);
+    else
+        fprintf(file, "%s %s %s %u F %u\n", currentVoter->IDstring, currentVoter->name,
+            currentVoter->surname, currentVoter->age, currentVoter->postCode);
+}
+
+/*
+Go through the voter RBT recursively and write each voter to output file.
+*/
+void writeToFileRecurse(node* currentNode, node* NIL, FILE* file) {
+    if(currentNode != NIL) {
+        voter* currentVoter = (voter*)(currentNode->element);
+        writeVoterToFile(currentVoter, file);
+        writeToFileRecurse(currentNode->leftChild, NIL, file);
+        writeToFileRecurse(currentNode->rightChild, NIL, file);
+    }
+}
+
+/*
+Write voter RBT to file that can be used as an input file
+in a different session.
+*/
+void exportRegistry(RBT* rbt, char* outputFile) {
+    FILE* file = fopen(outputFile, "w");
+    writeToFileRecurse(rbt->root, rbt->NIL, file);
+    fclose(file);
 }

@@ -37,9 +37,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf("input: %s, output: %s, numofupdates: %u\n", inputFile, outputFile, numberOfUpdates);
-
-    electionManager* manager = initializeElectionManager(numberOfUpdates);
+    electionManager* manager = initializeElectionManager(numberOfUpdates, outputFile);
 
     getVotersFromFile(inputFile, manager);
 

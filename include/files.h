@@ -25,6 +25,7 @@ struct electionManager {
     unsigned int numberOfUpdates;
     unsigned int updatesSoFar;
     uint32_t numberOfVoters;
+    char* outputFile;
 } typedef electionManager;
 
 
@@ -33,7 +34,7 @@ uint32_t            getNumberOfVoters(FILE* input);
 void                readVotersAndUpdateStructures(FILE* input, electionManager* manager);
 void                insertVoterToDataStructs(electionManager* manager, char* line, bool print);
 int                 getVotersFromFile(char* inputFile, electionManager* manager);
-electionManager*    initializeElectionManager(unsigned int numberOfUpdates);
+electionManager*    initializeElectionManager(unsigned int numberOfUpdates, char* outputFile);
 void                update(electionManager* manager);
 
 #endif //ERGASIA_1_FILES_H
