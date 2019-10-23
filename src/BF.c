@@ -121,7 +121,6 @@ size_t findFirstPrime(size_t size, int multiplier) {
     while(!simplePrimeCheck(number)) {
         number++;
     }
-    printf("prime: %zu\n", number);
     return number;
 }
 

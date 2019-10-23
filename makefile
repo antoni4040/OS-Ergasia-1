@@ -7,7 +7,7 @@ CC      =	gcc
 FLAGS   =       -Wall   -g      -c  -std=c99 	-I$(INC_DIR)	-D_XOPEN_SOURCE=700
 
 $(OUT): $(OBJS)
-	$(CC)   -g  -lm    $(OBJS) -o    $@	
+	$(CC)   -g  -lm    $(OBJS) -o    $@		-lm
 
 BF.o: ./src/BF.c
 	$(CC)   $(FLAGS)        ./src/BF.c
