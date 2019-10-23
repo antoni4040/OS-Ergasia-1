@@ -44,7 +44,7 @@ void update(electionManager* manager) {
 /*
 A little helping function to find the depth and population of an RBT.
 */
-void* RBTHealth(RBT* rbt, node* currentNode, int level) {
+void RBTHealth(RBT* rbt, node* currentNode, int level) {
     if(currentNode != rbt->NIL) numOfItems++;
 
     if(maxLevel < level && currentNode != rbt->NIL) maxLevel = level;

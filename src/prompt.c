@@ -173,4 +173,5 @@ int commandPrompt(electionManager* manager) {
     }
 
     free(line);
+    return 0;
 }

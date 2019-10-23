@@ -172,5 +172,5 @@ int insertToHashTable(HT* hashtable, node* newVoter) {
         RBInsert(foundPostcodeData->voters, newVoter);
         hashtable->cells[hashValue]->freeNode(postcodeDNode, true);
     }
-    
+    return 0;
 }

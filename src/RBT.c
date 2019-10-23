@@ -15,6 +15,7 @@ node* initializeNode(void* element) {
     newNode->element = element;
     newNode->color = RED;
     newNode->parent = NULL;
+    return newNode;
 }
 
 /*
@@ -124,15 +125,12 @@ node* RBSearch(RBT* rbt, node* nodeForSearch) {
     }
 
     // Iteratively get to the bottom of the RBT, until we hit a null child.
-    node* parentNode = rbt->NIL;
     node* currentNode = rbt->root;
     while(currentNode != rbt->NIL){
         if(rbt->compare(nodeForSearch, currentNode) < 0){
-            parentNode = currentNode;
             currentNode = currentNode->leftChild;
         }
         else if(rbt->compare(nodeForSearch, currentNode) > 0) {
-            parentNode = currentNode;
             currentNode = currentNode->rightChild;
         }
         else {
@@ -332,4 +330,5 @@ int RBDelete(RBT* rbt, node* nodeToDie) {
     }
     if(rememberColor == BLACK)
         RBDeleteFixup(rbt, nodeToDie);
+    return 0;
 }

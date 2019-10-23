@@ -107,6 +107,7 @@ int voteFromFile(RBT* rbt, char* filePath) {
     }
     free(line);
     fclose(votes);
+    return 0;
 }
 
 /*
