@@ -136,7 +136,11 @@ void postcodeRecurse(node* givenNode, node* NIL) {
 
         RBT* votersRBT = ((postcodeData*)(givenNode->element))->voters;
         postcodeStatisticsRecurse(votersRBT->root, votersRBT->NIL, voters, voted);
-        float percentage = ((float)(*voted)) / ((float)(*voters));
+        float percentage;
+        if(voters != 0)
+            percentage = ((float)(*voted)) / ((float)(*voters));
+        else
+            percentage = 0;
         percentage *= 100;
         printf("# IN %u VOTERS-ARE %u FROM %u, %f%%\n", ((postcodeData*)(givenNode->element))->postcode, 
             *voted, *voters, percentage);

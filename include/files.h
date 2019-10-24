@@ -34,7 +34,7 @@ void                update(electionManager* manager);
 void                RBTHealth(RBT* rbt, node* currentNode, int level);
 bool                checkInputFileExists(char* inputFile);
 uint32_t            getNumberOfVoters(FILE* input);
-void                insertVoterToDataStructs(electionManager* manager, char* line, bool print);
+int                 insertVoterToDataStructs(electionManager* manager, char* line, bool print);
 void                readVotersAndUpdateStructures(FILE* input, electionManager* manager);
 int                 getVotersFromFile(char* inputFile, electionManager* manager);
 

@@ -93,7 +93,7 @@ From given line of input, add voter data to all the data structures.
 but only for large values, and I assume no one has the age of the universe
 or a galactic postcode.)
 */
-void insertVoterToDataStructs(electionManager* manager, char* line, bool print) {
+int insertVoterToDataStructs(electionManager* manager, char* line, bool print) {
     unsigned int age;
     gender voterGender;
     unsigned int postcode;
@@ -104,6 +104,12 @@ void insertVoterToDataStructs(electionManager* manager, char* line, bool print) 
     char* ageString = strtok(NULL, " ");
     char* genderString = strtok(NULL, " ");
     char* postcodeString = strtok(NULL, " ");
+
+    if(IDstring == NULL || name == NULL || surname == NULL || ageString == NULL || 
+    genderString == NULL || postcodeString == NULL) {
+        printf("Can't add voter, not enough data given.\n");
+        return 1;
+    }
 
     age = strtoul(ageString, NULL, 10); 
     if(strcmp(genderString, "M") == 0) {
@@ -131,6 +137,7 @@ void insertVoterToDataStructs(electionManager* manager, char* line, bool print) 
         insertToHashTable(manager->hashTable, newNodePostcode);
         manager->numberOfVoters += 1;
     }
+    return 0;
 }
 
 /*
